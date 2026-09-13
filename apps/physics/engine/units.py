@@ -1,0 +1,125 @@
+UNITS = {
+    "м": ("length", 1.0),
+    "km": ("length", 1000.0),
+    "км": ("length", 1000.0),
+    "см": ("length", 0.01),
+    "cm": ("length", 0.01),
+    "мм": ("length", 0.001),
+    "дм": ("length", 0.1),
+    "ft": ("length", 0.3048),
+    "м/с": ("speed", 1.0),
+    "m/s": ("speed", 1.0),
+    "км/ч": ("speed", 1 / 3.6),
+    "km/h": ("speed", 1 / 3.6),
+    "м/с²": ("accel", 1.0),
+    "m/s²": ("accel", 1.0),
+    "м/с^2": ("accel", 1.0),
+    "см/с²": ("accel", 0.01),
+    "кг": ("mass", 1.0),
+    "kg": ("mass", 1.0),
+    "г": ("mass", 0.001),
+    "g": ("mass", 0.001),
+    "т": ("mass", 1000.0),
+    "Н": ("force", 1.0),
+    "N": ("force", 1.0),
+    "кН": ("force", 1000.0),
+    "мН": ("force", 0.001),
+    "Дж": ("energy", 1.0),
+    "J": ("energy", 1.0),
+    "кДж": ("energy", 1000.0),
+    "МДж": ("energy", 1e6),
+    "эрг": ("energy", 1e-7),
+    "Вт": ("power", 1.0),
+    "W": ("power", 1.0),
+    "кВт": ("power", 1000.0),
+    "МВт": ("power", 1e6),
+    "с": ("time", 1.0),
+    "s": ("time", 1.0),
+    "мин": ("time", 60.0),
+    "ч": ("time", 3600.0),
+    "мс": ("time", 0.001),
+    "Па": ("pressure", 1.0),
+    "Pa": ("pressure", 1.0),
+    "кПа": ("pressure", 1000.0),
+    "МПа": ("pressure", 1e6),
+    "атм": ("pressure", 101325.0),
+    "Ом": ("resistance", 1.0),
+    "Ω": ("resistance", 1.0),
+    "кОм": ("resistance", 1000.0),
+    "МОм": ("resistance", 1e6),
+    "А": ("current", 1.0),
+    "A": ("current", 1.0),
+    "мА": ("current", 0.001),
+    "кА": ("current", 1000.0),
+    "В": ("voltage", 1.0),
+    "V": ("voltage", 1.0),
+    "кВ": ("voltage", 1000.0),
+    "Кл": ("charge", 1.0),
+    "C": ("charge", 1.0),
+    "мкКл": ("charge", 1e-6),
+    "нКл": ("charge", 1e-9),
+    "Ф": ("capacitance", 1.0),
+    "мкФ": ("capacitance", 1e-6),
+    "нФ": ("capacitance", 1e-9),
+    "пФ": ("capacitance", 1e-12),
+    "Гн": ("inductance", 1.0),
+    "мГн": ("inductance", 1e-3),
+    "Тл": ("induction", 1.0),
+    "мТл": ("induction", 1e-3),
+    "Вб": ("flux", 1.0),
+    "Гц": ("frequency", 1.0),
+    "Hz": ("frequency", 1.0),
+    "кГц": ("frequency", 1000.0),
+    "МГц": ("frequency", 1e6),
+    "К": ("temperature", 1.0),
+    "°C": ("temperature", None),
+    "°": ("angle", None),
+    "рад": ("angle", 1.0),
+    "°C": ("temperature", None),
+    "Н/м": ("stiffness", 1.0),
+    "Н·м": ("torque", 1.0),
+    "кг·м/с": ("momentum", 1.0),
+    "кг·м²": ("inertia", 1.0),
+    "м³": ("volume", 1.0),
+    "л": ("volume", 0.001),
+    "м²": ("area", 1.0),
+    "см²": ("area", 1e-4),
+}
+
+
+def to_si(value, unit):
+    if unit is None:
+        return value, None
+    key = unit.strip()
+    if key in UNITS:
+        kind, factor = UNITS[key]
+        if factor is None:
+            if kind == "temperature" and "C" in key:
+                return value + 273.15, "К"
+            if kind == "angle":
+                return value, "рад"
+            return value, unit
+        return value * factor, unit_to_si(key)
+    return value, unit
+
+
+def unit_to_si(unit):
+    mapping = {
+        "км": "м", "cm": "м", "см": "м", "мм": "м", "дм": "м",
+        "км/ч": "м/с", "km/h": "м/с",
+        "г": "кг", "т": "кг", "mg": "кг",
+        "кН": "Н", "мН": "Н",
+        "кДж": "Дж", "МДж": "Дж",
+        "кВт": "Вт", "МВт": "Вт",
+        "мин": "с", "ч": "с", "мс": "с",
+        "кПа": "Па", "МПа": "Па",
+        "кОм": "Ом", "МОм": "Ом",
+        "мА": "А", "кА": "А",
+        "кВ": "В",
+        "мкКл": "Кл", "нКл": "Кл",
+        "мкФ": "Ф", "нФ": "Ф", "пФ": "Ф",
+        "мГн": "Гн",
+        "мТл": "Тл",
+        "кГц": "Гц", "МГц": "Гц",
+    }
+    return mapping.get(unit, unit)
